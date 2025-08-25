@@ -1,0 +1,40 @@
+name: Lint and Format Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project: [backend, frontend]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd ${{ matrix.project }}
+          npm ci
+
+      - name: Run ESLint
+        run: |
+          cd ${{ matrix.project }}
+          npx eslint . --ext .ts,.tsx,.js,.jsx
+
+      - name: Run Prettier Check
+        run: |
+          cd ${{ matrix.project }}
+          npx prettier . --check
